@@ -57,7 +57,7 @@ Set-ScheduledTask -TaskName $TaskName -Trigger $NewTriggers
 # Type 2 = Daily
 # Type 3 = Weekly
     # -DayOfWeek: Sun=1,Mon=2,Tue=4,Wed=8,Thu=16,Fri=32,Sat=64
-    # -Multiday adds the vaules above together. Sun,Mon=3. Thu,Fri,Sat=112
+    # -Multi-day adds the values above together. Sun,Mon=3. Thu,Fri,Sat=112
 # Type 4 = Monthly
     # -DaysOfMonth: This one is tricky
     # -MonthsOfYear: Every month=4095
