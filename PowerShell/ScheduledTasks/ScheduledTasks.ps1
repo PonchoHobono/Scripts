@@ -111,6 +111,6 @@ $ScheduledTask.Settings
 # "Configure for" setting
 $ScheduledTask.Settings.Compatibility
 # Microsoft Vista, Windows Server 2008 = "Vista"
-# MiWindows 7, Windows Server 2008 R2 = "Win7"
+# Windows 7, Windows Server 2008 R2 = "Win7"
 # Windows Server 2016 = "Win8"
 $ScheduledTask.Settings.Compatibility="Win8" # Not working???
