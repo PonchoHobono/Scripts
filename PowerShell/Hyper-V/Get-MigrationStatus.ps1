@@ -1,10 +1,10 @@
 Function Get-MigrationStatus {
 <#
 .SYNOPSIS
-    Gets the status Hyper-V Live Migration jobs.
+    Gets the status of Hyper-V Live Migration jobs.
 
 .DESCRIPTION
-    Gets the status Hyper-V Live Migration jobs.
+    Gets the status of Hyper-V Live Migration jobs.
 
 .PARAMETER ComputerName
     Single or array of Hyper-V hostnames.
