@@ -3,8 +3,9 @@
 # Borrowed lots of code from: https://github.com/J0F3/PowerShell/blob/master/Request-Certificate.ps1
 
 # Variables to update as needed
-[string]$CN = "nessus.laptoplab.net"
-[String]$TemplateName = "LabSSLWebCertificateCustom"
+[string]$CN = "nessus2.laptoplab.net"
+[string]$TemplateName = "LabSSLWebCertificateCustom"
+[string]$Password = "P@ssw0rd"
 
 # Other Variables
 [string[]]$SAN = "DNS=$CN"
@@ -12,7 +13,7 @@
 [string]$FriendlyName = """Nessus $Date"""
 [int]$keyLength = 2048
 [string]$NessusCAPath = "C:\ProgramData\Tenable\Nessus\nessus\CA"
-$Password = ConvertTo-SecureString "P@ssw0rd" -AsPlainText -Force
+$SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
 # CA
 $rootDSE = [System.DirectoryServices.DirectoryEntry]'LDAP://RootDSE'
 $searchBase = [System.DirectoryServices.DirectoryEntry]"LDAP://$($rootDSE.configurationNamingContext)"
@@ -77,29 +78,17 @@ Set-Content -Path $inf -Value $file
 Invoke-Expression -Command "certreq -new `"$inf`" `"$req`""
 
 # Private Key
-#$Request = certutil -dump $req
-#$X = $Request | Select-String "Subject Key Identifier" -Context(0,1)
-#$X.Context.PostContext
-#[string]$SKI = "f0 6c eb 4a a3 d5 bb de a5 da 43 0f 68 e0 f6 3d a5 cf 7b c3".Replace(' ','')
-#$CertificateRequest = Get-ChildItem -Path Cert:\LocalMachine\REQUEST | Where-Object {$_.Subject -like "CN=nessus.laptoplab.net*"}
- #Get-ChildItem -Path Cert:\LocalMachine\REQUEST | Where-Object {$_.Subject -like "CN=$CN*"} | sort NotBefore -Descending | select NotBefore,Thumbprint,Subject
 $CertificateRequest = Get-ChildItem -Path Cert:\LocalMachine\REQUEST | Where-Object {$_.Subject -like "CN=$CN*"} | sort NotBefore | Select-Object -Last 1
-Export-PfxCertificate -Cert $CertificateRequest -Password $Password -FilePath "$env:TEMP\$CN.pfx"
+Export-PfxCertificate -Cert $CertificateRequest -Password $SecurePassword -FilePath "$env:TEMP\$CN.pfx"
 
-# Convert PFX to PEM. Ignore error on RSA command. It still creates the KEY file.
+# Convert PFX to PEM. Ignore the error on RSA command. It still creates the KEY file.
 Set OPENSSL_CONF=C:\Program Files\OpenSSL-Win64\bin\openssl.cfg
 Set-Location -Path 'C:\Program Files\OpenSSL-Win64\bin'
-#.\openssl.exe pkcs12 -in C:\Users\Administrator.LAPTOPLAB\AppData\Local\Temp\nessus.laptoplab.net.pfx -nocerts -out C:\Users\Administrator.LAPTOPLAB\AppData\Local\Temp\nessus.laptoplab.net.pem -passin pass:P@ssw0rd -passout pass:P@ssw0rd
-.\openssl.exe pkcs12 -in $env:TEMP\$CN.pfx -nocerts -out $env:TEMP\$CN.pem -passin pass:P@ssw0rd -passout pass:P@ssw0rd
-#.\openssl.exe rsa -in C:\Users\Administrator.LAPTOPLAB\AppData\Local\Temp\nessus.laptoplab.net.pem -out C:\Users\Administrator.LAPTOPLAB\AppData\Local\Temp\nessus.laptoplab.net.key -passin pass:P@ssw0rd -passout pass:P@ssw0rd
-.\openssl.exe rsa -in $env:TEMP\$CN.pem -out $env:TEMP\$CN.key -passin pass:P@ssw0rd -passout pass:P@ssw0rd
+.\openssl.exe pkcs12 -in $env:TEMP\$CN.pfx -nocerts -out $env:TEMP\$CN.pem -passin pass:$Password -passout pass:$Password
+.\openssl.exe rsa -in $env:TEMP\$CN.pem -out $env:TEMP\$CN.key -passin pass:$Password -passout pass:$Password
 Set-Location -Path C:\Temp
 
 # Submit CSR
-#Write-Host "certreq -submit$CAName `"$req`" `"$cer`""
-#Write-Host "certreq -submit -config $CAName `"$req`" `"$cer`""
-#Write-Host "certreq -submit -config `"$CAName`" `"$req`" `"$cer`""
-#Invoke-Expression -Command "certreq -submit$CAName `"$req`" `"$cer`""
 Invoke-Expression -Command "certreq -submit -config `"$CAName`" `"$req`" `"$cer`""
 
 # Retrieve certificate
