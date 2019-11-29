@@ -18,15 +18,12 @@ $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
 $rootDSE = [System.DirectoryServices.DirectoryEntry]'LDAP://RootDSE'
 $searchBase = [System.DirectoryServices.DirectoryEntry]"LDAP://$($rootDSE.configurationNamingContext)"
 $CAs = [System.DirectoryServices.DirectorySearcher]::new($searchBase,'objectClass=pKIEnrollmentService').FindAll()
-if($CAs.Count -eq 1){
+If ($CAs.Count -eq 1){
     $CAName = "$($CAs[0].Properties.dnshostname)\$($CAs[0].Properties.cn)"
-}
-else {
+} Else {
     $CAName = ""
 }
-if (!$CAName -eq "") {
-    #$CAName = " -config `"$CAName`""
-    #$CAName = "`"$CAName`""
+If (!$CAName -eq "") {
     $CAName = "$CAName"
 }
 
@@ -49,7 +46,7 @@ CertificateTemplate = "$TemplateName"
 "@
 
 # SAN Certificate
-if (($SAN).count -eq 1) {
+If (($SAN).count -eq 1) {
     $SAN = @($SAN -split ',')
 }
 $file += 
@@ -62,7 +59,7 @@ $file +=
 2.5.29.17 = "{text}"
 
 '@
-foreach ($an in $SAN) {
+ForEach ($an in $SAN) {
     $file += "_continue_ = `"$($an)&`"`n"
 }
 
@@ -81,11 +78,13 @@ Invoke-Expression -Command "certreq -new `"$inf`" `"$req`""
 $CertificateRequest = Get-ChildItem -Path Cert:\LocalMachine\REQUEST | Where-Object {$_.Subject -like "CN=$CN*"} | sort NotBefore | Select-Object -Last 1
 Export-PfxCertificate -Cert $CertificateRequest -Password $SecurePassword -FilePath "$env:TEMP\$CN.pfx"
 
-# Convert PFX to PEM. Ignore the error on RSA command. It still creates the KEY file.
+# Convert PFX to PEM.
+# https://www.jonathanmedd.net/2013/07/making-native-executables-in-windows-run-quietly-in-powershell.html
+# https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_redirection?view=powershell-5.1
 Set OPENSSL_CONF=C:\Program Files\OpenSSL-Win64\bin\openssl.cfg
 Set-Location -Path 'C:\Program Files\OpenSSL-Win64\bin'
-.\openssl.exe pkcs12 -in $env:TEMP\$CN.pfx -nocerts -out $env:TEMP\$CN.pem -passin pass:$Password -passout pass:$Password
-.\openssl.exe rsa -in $env:TEMP\$CN.pem -out $env:TEMP\$CN.key -passin pass:$Password -passout pass:$Password
+Invoke-Expression -Command ".\openssl.exe pkcs12 -in $env:TEMP\$CN.pfx -nocerts -out $env:TEMP\$CN.pem -passin pass:$Password -passout pass:$Password"
+Invoke-Expression -Command ".\openssl.exe rsa -in $env:TEMP\$CN.pem -out $env:TEMP\$CN.key -passin pass:$Password -passout pass:$Password" 2>&1
 Set-Location -Path C:\Temp
 
 # Submit CSR
@@ -104,17 +103,20 @@ certutil -encode "$env:TEMP\$CN`_Issued.cer" "$env:TEMP\$CN`_Issued_Base64.cer"
 # https://www.powershellgallery.com/packages/CertificatePS/1.2/Content/Copy-CertificateToRemote.ps1
 [int]$iteration = 1
 $Chain = New-Object System.Security.Cryptography.X509Certificates.X509Chain
-$Chain.Build($IssuedCertificate)
-$Chain.ChainElements | Select-Object -ExpandProperty Certificate -Skip 1 | ForEach-Object {
-    $iteration++
-    $CertificatePath = Join-Path $env:TEMP "$("{0:00}" -f $iteration).$($_.Thumbprint).cer"
-    $_ | Export-Certificate -FilePath $CertificatePath | Out-Null
+$Chain.Build($IssuedCertificate) | Out-Null
+$ChainElements = $Chain.ChainElements | Select-Object -ExpandProperty Certificate -Skip 1
+ForEach ($ChainElement in $ChainElements) {
+    $Iteration++
+    $CertificatePath = Join-Path $env:TEMP "$("{0:00}" -f $Iteration).$($ChainElement.Thumbprint).cer"
+    $ChainElement | Export-Certificate -FilePath $CertificatePath | Out-Null
+    # Convert to Base64
+    $Output = certutil -encode "$CertificatePath" "$env:TEMP\$("{0:00}" -f $Iteration).$($ChainElement.Thumbprint)`_Base64.cer"
 }
 
 # Update Nessus certificate files
 $Date = Get-Date -Format yyyyMMddhhmmss
 Rename-Item -Path $NessusCAPath\cacert.pem -NewName $NessusCAPath\cacert`_$Date.pem
-#Copy-Item -Path $env:TEMP\03.97A2D8212FCB85B9A2EF3D75B50BC1EF078D0298.cer -Destination $NessusCAPath\cacert.pem
+Copy-Item -Path $CertificatePath.Replace('.cer','_Base64.cer') -Destination $NessusCAPath\cacert.pem
 Rename-Item -Path $NessusCAPath\servercert.pem -NewName $NessusCAPath\servercert`_$Date.pem
 Copy-Item -Path $env:TEMP\$CN`_Issued_Base64.cer -Destination $NessusCAPath\servercert.pem -Force
 Rename-Item -Path $NessusCAPath\serverkey.pem -NewName $NessusCAPath\serverkey`_$Date.pem
