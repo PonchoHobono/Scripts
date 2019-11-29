@@ -78,7 +78,7 @@ Invoke-Expression -Command "certreq -new `"$inf`" `"$req`""
 $CertificateRequest = Get-ChildItem -Path Cert:\LocalMachine\REQUEST | Where-Object {$_.Subject -like "CN=$CN*"} | sort NotBefore | Select-Object -Last 1
 Export-PfxCertificate -Cert $CertificateRequest -Password $SecurePassword -FilePath "$env:TEMP\$CN.pfx"
 
-# Convert PFX to PEM.
+# Convert PFX to PEM
 # https://www.jonathanmedd.net/2013/07/making-native-executables-in-windows-run-quietly-in-powershell.html
 # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_redirection?view=powershell-5.1
 Set OPENSSL_CONF=C:\Program Files\OpenSSL-Win64\bin\openssl.cfg
