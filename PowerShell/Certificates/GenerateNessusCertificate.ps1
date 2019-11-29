@@ -1,4 +1,4 @@
-# This is still a work in progress.
+# https://patrickhoban.wordpress.com/2019/11/29/replace-tenable-nessus-essentials-self-signed-certificate
 
 # Borrowed lots of code from: https://github.com/J0F3/PowerShell/blob/master/Request-Certificate.ps1
 
