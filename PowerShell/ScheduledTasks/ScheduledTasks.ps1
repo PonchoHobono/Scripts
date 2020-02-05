@@ -4,18 +4,18 @@ $Description = "Runs a test script."
 $User = "System"
 $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "C:\Temp\Testing.ps1"
 $StartTimes = "10:00AM","10:30AM"
-$Trigger = ForEach ($StartTime in $StartTimes) {
+$Triggers = ForEach ($StartTime in $StartTimes) {
     New-ScheduledTaskTrigger -Daily -At $StartTime
 }
-Register-ScheduledTask -TaskName $TaskName -Description $Description -User $User -Action $Action -Trigger $Trigger -Force
+Register-ScheduledTask -TaskName $TaskName -Description $Description -User $User -Action $Action -Trigger $Triggers -Force
 
 # Replace all triggers on an existing Scheduled Task
 $TaskName = "Testing"
 $StartTimes = "10:40AM","10:45AM"
-$Trigger = ForEach ($StartTime in $StartTimes) {
+$Triggers = ForEach ($StartTime in $StartTimes) {
     New-ScheduledTaskTrigger -Daily -At $StartTime
 }
-Set-ScheduledTask -TaskName $TaskName -Trigger $Trigger
+Set-ScheduledTask -TaskName $TaskName -Trigger $Triggers
 
 # Add trigger(s) to a scheduled task
 $TaskName = "Testing"
