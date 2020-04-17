@@ -12,3 +12,22 @@ ForEach ($Group in $Groups) {
         Write-Host $Group.Name -ForegroundColor Green
     }
 }
+
+
+# This is an alternate way to accomplish the same thing by getting the ACL on each group.
+# Depending on the size of the environment, this method can be much slower.
+
+# Variables
+$SearchBase = "OU=Groups,OU=Lab,DC=laptoplab,DC=net"
+$SeachFor = "*POLICY_Test*"
+
+#Code
+$Groups = Get-ADGroup -SearchBase $SearchBase -Filter *
+ForEach ($Group in $Groups) {
+    $Results = (Get-Acl "AD:\$($Group.DistinguishedName)").Access
+    ForEach ($Result in $Results) {
+        If ($Result.IdentityReference -like $SeachFor) {
+            Write-Host $Group.Name -ForegroundColor Green
+        }
+    }
+}
