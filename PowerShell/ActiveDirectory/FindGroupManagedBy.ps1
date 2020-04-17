@@ -2,8 +2,8 @@
 # any groups that have the "ManagedBy" attribute set for the User/Group specified in the SearchFor vairable.
 
 # Variables
-$SearchBase = "OU=Groups,OU=Lab,DC=laptoplab,DC=net"
-$SeachFor = "*POLICY_Test*"
+$SearchBase = "OU=Groups,OU=Lab,DC=domain,DC=net"
+$SeachFor = "*PartOfGroupName*"
 
 # Code
 $Groups = Get-ADGroup -SearchBase $SearchBase  -Filter * -Properties managedBy
@@ -18,8 +18,8 @@ ForEach ($Group in $Groups) {
 # Depending on the size of the environment, this method can be much slower.
 
 # Variables
-$SearchBase = "OU=Groups,OU=Lab,DC=laptoplab,DC=net"
-$SeachFor = "*POLICY_Test*"
+$SearchBase = "OU=Groups,OU=Lab,DC=domain,DC=net"
+$SeachFor = "*PartOfGroupName*"
 
 #Code
 $Groups = Get-ADGroup -SearchBase $SearchBase -Filter *
