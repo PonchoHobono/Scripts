@@ -6,7 +6,7 @@ $SearchBase = "OU=Groups,OU=Lab,DC=domain,DC=net"
 $SeachFor = "*PartOfGroupName*"
 
 # Code
-$Groups = Get-ADGroup -SearchBase $SearchBase  -Filter * -Properties managedBy
+$Groups = Get-ADGroup -SearchBase $SearchBase -Filter * -Properties managedBy
 ForEach ($Group in $Groups) {
     If ($Group.managedBy -like $SeachFor) {
         Write-Host $Group.Name -ForegroundColor Green
