@@ -1,4 +1,4 @@
-# This quick code block will search through Active Directory at the SearchBase you specify & look for
+# This quick code block will search through Active Directory at the SearchBase you specify & looks for
 # any groups that have the "ManagedBy" attribute set for the User/Group specified in the SearchFor vairable.
 
 # Variables
