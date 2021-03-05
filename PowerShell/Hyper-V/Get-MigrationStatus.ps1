@@ -17,8 +17,8 @@ Function Get-MigrationStatus {
 #>
     [CmdletBinding()]
     Param (
-    [Parameter(mandatory=$true,Valuefrompipeline=$true)]
-    [string[]]$ComputerName
+        [Parameter(mandatory=$true,Valuefrompipeline=$true)]
+        [string[]]$ComputerName
     )
 
     Invoke-Command -ComputerName $ComputerName -ScriptBlock {
