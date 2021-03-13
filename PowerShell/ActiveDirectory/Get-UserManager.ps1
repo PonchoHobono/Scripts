@@ -35,6 +35,7 @@ Function Get-UserManager {
                 $ManagerInfo = Get-ADUser -Identity $Manager -Properties EmailAddress
             } Else {
                # No Manager attribute set.
+               $ManagerInfo = ""
             }
             $Object = [pscustomobject]@{
                 UserID = $UserInfo.SamAccountName
