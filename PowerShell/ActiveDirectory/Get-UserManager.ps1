@@ -23,23 +23,30 @@ Function Get-UserManager {
     $Return = @()
     ForEach ($User in $Identity) {
         $Object = @()
-        $UserInfo = Get-ADUser -Identity $User -Properties EmailAddress,Manager #-ErrorAction SilentlyContinue
-        If ($UserInfo.Manager) {
-            $Manager = ($UserInfo.Manager).Split('=,')[1]
-            $ManagerInfo = Get-ADUser -Identity $Manager -Properties EmailAddress
-        } Else {
-            # No Manager attribute set.
+        Try {
+            $UserInfo = Get-ADUser -Identity $User -Properties EmailAddress,Manager -ErrorAction Stop
         }
-        $Object = [pscustomobject]@{
-            UserID = $UserInfo.SamAccountName
-            #Name = $UserInfo.Name
-            Name = $UserInfo.GivenName + " " + $UserInfo.Surname
-            Email = $UserInfo.EmailAddress
-            ManagerID = $ManagerInfo.SamAccountName
-            ManagerName = $ManagerInfo.GivenName + " " + $ManagerInfo.Surname
-            ManagerEmail = $ManagerInfo.EmailAddress
+        Catch {
+            continue
         }
-        $Return += $Object
+        If ($UserInfo) {
+            If ($UserInfo.Manager) {
+                $Manager = ($UserInfo.Manager).Split('=,')[1]
+                $ManagerInfo = Get-ADUser -Identity $Manager -Properties EmailAddress
+            } Else {
+               # No Manager attribute set.
+            }
+            $Object = [pscustomobject]@{
+                UserID = $UserInfo.SamAccountName
+                #Name = $UserInfo.Name
+                Name = $UserInfo.GivenName + " " + $UserInfo.Surname
+                Email = $UserInfo.EmailAddress
+                ManagerID = $ManagerInfo.SamAccountName
+                ManagerName = $ManagerInfo.GivenName + " " + $ManagerInfo.Surname
+                ManagerEmail = $ManagerInfo.EmailAddress
+            }
+            $Return += $Object
+        }
     }
     Return $Return
 }
