@@ -1,4 +1,24 @@
 Function Get-UserManager {
+<#
+.SYNOPSIS
+
+.DESCRIPTION
+
+.PARAMETER Identity
+    The Identity/username of the account(s) you are searching for.
+    
+.PARAMETER Path
+    The full path to a text file containing a list of usernames on seperate lines.
+    
+.PARAMETER Output
+    An optional parameter to specify a path that the results of the query should output to.
+.NOTES
+    Created by: Patrick Hoban
+
+.LINK
+   https://patrickhoban.wordpress.com
+   https://github.com/PonchoHobono
+#>
     
     [CmdletBinding(
         DefaultParameterSetName='Identity'
