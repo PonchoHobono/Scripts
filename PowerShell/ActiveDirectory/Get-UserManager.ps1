@@ -5,15 +5,16 @@ Function Get-UserManager {
     )]
     Param (
 	    [Parameter(
-            ParameterSetName='Identity',
-            Mandatory=$true,ValueFromPipeline=$true,Position=0
-        )]
+            ParameterSetName='Identity',Mandatory=$true,ValueFromPipeline=$true,Position=0)]
 	    [String[]]$Identity,
         [Parameter(
-            ParameterSetName='File',
-            Mandatory=$true,ValueFromPipeline=$false,Position=0
-        )]
-	    [String]$Path
+            ParameterSetName='File',Mandatory=$true,ValueFromPipeline=$false,Position=0)]
+	    [String]$Path,
+        [Parameter(
+            ParameterSetName='Identity',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
+        [Parameter(
+            ParameterSetName='File',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
+	    [String]$Output
     )
 
     If ($Path) {
@@ -31,8 +32,7 @@ Function Get-UserManager {
         }
         If ($UserInfo) {
             If ($UserInfo.Manager) {
-                $Manager = ($UserInfo.Manager).Split('=,')[1]
-                $ManagerInfo = Get-ADUser -Identity $Manager -Properties EmailAddress
+                $ManagerInfo = Get-ADUser -Identity $UserInfo.Manager -Properties EmailAddress
             } Else {
                # No Manager attribute set.
                $ManagerInfo = ""
@@ -49,5 +49,18 @@ Function Get-UserManager {
             $Return += $Object
         }
     }
-    Return $Return
+
+    If ($Output) {
+        If (Test-Path -Path $Output) {
+            #$Return | Export-Csv -Path $Output -NoTypeInformation
+            [string]$Date = Get-Date -Format yyyyMMddhhmmss
+            #$File = "C:\Temp\$Date`_UsersManagers.csv"
+            Write-Host $Output\$Date`_UsersManagers.csv
+        } Else {
+            Write-Host "$Output does not exists." -ForegroundColor Red
+            Return $Return
+        }
+    } Else {
+        Return $Return
+    }
 }
