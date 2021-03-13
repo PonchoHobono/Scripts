@@ -4,16 +4,12 @@ Function Get-UserManager {
         DefaultParameterSetName='Identity'
     )]
     Param (
-	    [Parameter(
-            ParameterSetName='Identity',Mandatory=$true,ValueFromPipeline=$true,Position=0)]
+	[Parameter(ParameterSetName='Identity',Mandatory=$true,ValueFromPipeline=$true,Position=0)]
 	    [String[]]$Identity,
-        [Parameter(
-            ParameterSetName='File',Mandatory=$true,ValueFromPipeline=$false,Position=0)]
+        [Parameter(ParameterSetName='File',Mandatory=$true,ValueFromPipeline=$false,Position=0)]
 	    [String]$Path,
-        [Parameter(
-            ParameterSetName='Identity',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
-        [Parameter(
-            ParameterSetName='File',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
+        [Parameter(ParameterSetName='Identity',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
+        [Parameter(ParameterSetName='File',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
 	    [String]$Output
     )
 
