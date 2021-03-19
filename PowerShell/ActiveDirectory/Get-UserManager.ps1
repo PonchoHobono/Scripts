@@ -1,8 +1,13 @@
-Function Get-UserManager {
+# v1.3
+# Fixed code to lookup manager. No longer using split. CN can be passed to the Identity paramter.
+# Adding Output parameter
+function Get-UserManager {
 <#
 .SYNOPSIS
+    Gets the manager information for a user or users.
 
 .DESCRIPTION
+    Gets the manager information for a user or users.
 
 .PARAMETER Identity
     The Identity/username of the account(s) you are searching for.
@@ -12,44 +17,86 @@ Function Get-UserManager {
     
 .PARAMETER Output
     An optional parameter to specify a path that the results of the query should output to.
+    (e.g. C:\Temp)
+
+.EXAMPLE
+    Get-UserManager -Identity patrick
+
+    UserID       : patrick
+    Name         : Patrick Hoban
+    Email        : phoban@laptoplab.net
+    ManagerID    : ESwarts
+    ManagerName  : Ethan Swarts
+    ManagerEmail : ethan@laptoplab.net
+
+.EXAMPLE
+    Get-UserManager -Path C:\temp\UserIds.txt
+
+    UserID       : patrick
+    Name         : Patrick Hoban
+    Email        : phoban@laptoplab.net
+    ManagerID    : ESwarts
+    ManagerName  : Ethan Swarts
+    ManagerEmail : ethan@laptoplab.net
+
+    UserID       : TViolette
+    Name         : Telma Violette
+    Email        : TViolette@laptoplab.net
+    ManagerID    : BCaston
+    ManagerName  : Burton Caston
+    ManagerEmail : BCaston@laptoplab.net
+
+.EXAMPLE
+    Get-UserManager -Identity AJones -Output C:\Temp
+
+    C:\Temp\20210318105448_UsersManagers.csv
+
 .NOTES
-    Created by: Patrick Hoban
+    Author: Patrick Hoban
+    Version: 1.0.3
+    -Published
+    -Fixed code to lookup manager. No longer using split. CN can be passed to the Identity paramter.
+    -Adding Output parameter
 
 .LINK
    https://patrickhoban.wordpress.com
-   https://github.com/PonchoHobono
+   https://github.com/PonchoHobono/Scripts/blob/master/PowerShell/ActiveDirectory/Get-UserManager.ps1
 #>
-    
+
     [CmdletBinding(
         DefaultParameterSetName='Identity'
     )]
     Param (
-	[Parameter(ParameterSetName='Identity',Mandatory=$true,ValueFromPipeline=$true,Position=0)]
-	    [String[]]$Identity,
-        [Parameter(ParameterSetName='File',Mandatory=$true,ValueFromPipeline=$false,Position=0)]
-	    [String]$Path,
-        [Parameter(ParameterSetName='Identity',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
-        [Parameter(ParameterSetName='File',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
-	    [String]$Output
+        [Parameter(
+            ParameterSetName='Identity',Mandatory=$true,ValueFromPipeline=$true,Position=0)]
+                [String[]]$Identity,
+        [Parameter(
+            ParameterSetName='File',Mandatory=$true,ValueFromPipeline=$false,Position=0)]
+                [String]$Path,
+        [Parameter(
+            ParameterSetName='Identity',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
+        [Parameter(
+            ParameterSetName='File',Mandatory=$false,ValueFromPipeline=$false,Position=1)]
+                [String]$Output
     )
 
-    If ($Path) {
+    if ($Path) {
         $Identity = Get-Content -Path $Path
     }
 
     $Return = @()
-    ForEach ($User in $Identity) {
+    foreach ($User in $Identity) {
         $Object = @()
-        Try {
+        try {
             $UserInfo = Get-ADUser -Identity $User -Properties EmailAddress,Manager -ErrorAction Stop
         }
-        Catch {
-            continue
+        catch {
+            Continue
         }
-        If ($UserInfo) {
-            If ($UserInfo.Manager) {
+        if ($UserInfo) {
+            if ($UserInfo.Manager) {
                 $ManagerInfo = Get-ADUser -Identity $UserInfo.Manager -Properties EmailAddress
-            } Else {
+            } else {
                # No Manager attribute set.
                $ManagerInfo = ""
             }
@@ -66,17 +113,17 @@ Function Get-UserManager {
         }
     }
 
-    If ($Output) {
-        If (Test-Path -Path $Output) {
-            #$Return | Export-Csv -Path $Output -NoTypeInformation
+    if ($Output) {
+        if (Test-Path -Path $Output) {
             [string]$Date = Get-Date -Format yyyyMMddhhmmss
-            #$File = "C:\Temp\$Date`_UsersManagers.csv"
-            Write-Host $Output\$Date`_UsersManagers.csv
-        } Else {
+            $File = "$Output\$Date`_UsersManagers.csv"
+            Write-Host $File
+            $Return | Export-Csv -Path $File -NoTypeInformation
+        } else {
             Write-Host "$Output does not exists." -ForegroundColor Red
             Return $Return
         }
-    } Else {
-        Return $Return
+    } else {
+        $Return
     }
 }
