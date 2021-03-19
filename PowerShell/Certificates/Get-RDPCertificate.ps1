@@ -59,7 +59,7 @@ function Get-RDPCertificate {
 
 .LINK 
    https://patrickhoban.wordpress.com
-   https://github.com/PonchoHobono/Scripts/new/master/PowerShell/Certificates/Get-RDPCertificate.ps1
+   https://github.com/PonchoHobono/Scripts/blob/master/PowerShell/Certificates/Get-RDPCertificate.ps1
 #>
 
     [CmdletBinding(
