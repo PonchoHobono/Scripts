@@ -3,7 +3,7 @@
 # Borrowed lots of code from: https://github.com/J0F3/PowerShell/blob/master/Request-Certificate.ps1
 
 # Variables to update as needed
-[string]$CN = "nessus2.laptoplab.net"
+[string]$CN = "nessus.laptoplab.net"
 [string]$TemplateName = "LabSSLWebCertificateCustom"
 [string]$Password = "P@ssw0rd"
 
