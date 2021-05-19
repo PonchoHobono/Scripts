@@ -3,18 +3,24 @@
 # Borrowed lots of code from: https://github.com/J0F3/PowerShell/blob/master/Request-Certificate.ps1
 
 # Variables to update as needed
-[string]$CN = "nessus.laptoplab.net"
-[string]$TemplateName = "LabSSLWebCertificateCustom"
-[string]$Password = "P@ssw0rd"
+[string]$CN = 'nessus.laptoplab.net'
+[string]$TemplateName = 'LabSSLWebCertificateCustom'
+[string]$Password = 'P@ssw0rd'
+[string]$NessusCAPath = 'C:\ProgramData\Tenable\Nessus\nessus\CA'
+$Country = ''
+$State = ''
+$City = ''
+$Organisation = ''
+$Department = ''
 
 # Other Variables
 [string[]]$SAN = "DNS=$CN"
 [string]$Date = Get-Date -Format yyyyMMddhhmmss
 [string]$FriendlyName = """Nessus $Date"""
 [int]$keyLength = 2048
-[string]$NessusCAPath = "C:\ProgramData\Tenable\Nessus\nessus\CA"
 $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
-# CA
+
+# Certificate Authority
 $rootDSE = [System.DirectoryServices.DirectoryEntry]'LDAP://RootDSE'
 $searchBase = [System.DirectoryServices.DirectoryEntry]"LDAP://$($rootDSE.configurationNamingContext)"
 $CAs = [System.DirectoryServices.DirectorySearcher]::new($searchBase,'objectClass=pKIEnrollmentService').FindAll()
@@ -27,7 +33,7 @@ If (!$CAName -eq "") {
     $CAName = "$CAName"
 }
 
-# Stop Tenable service
+# Stop the Tenable service
 Stop-Service -Name 'Tenable Nessus'
 
 # INF Template
@@ -71,7 +77,7 @@ $cer = Join-Path -Path $env:TEMP -ChildPath "$CN.cer"
 # Create new request inf file
 Set-Content -Path $inf -Value $file
 
-# Create certificate request (CSR)
+# Create certificate signing request (CSR)
 Invoke-Expression -Command "certreq -new `"$inf`" `"$req`""
 
 # Private Key
@@ -79,6 +85,7 @@ $CertificateRequest = Get-ChildItem -Path Cert:\LocalMachine\REQUEST | Where-Obj
 Export-PfxCertificate -Cert $CertificateRequest -Password $SecurePassword -FilePath "$env:TEMP\$CN.pfx"
 
 # Convert PFX to PEM
+# You will need OpenSSL installed. Personally I like: https://slproweb.com/products/Win32OpenSSL.html
 # https://www.jonathanmedd.net/2013/07/making-native-executables-in-windows-run-quietly-in-powershell.html
 # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_redirection?view=powershell-5.1
 Set OPENSSL_CONF=C:\Program Files\OpenSSL-Win64\bin\openssl.cfg
@@ -122,7 +129,7 @@ Copy-Item -Path $env:TEMP\$CN`_Issued_Base64.cer -Destination $NessusCAPath\serv
 Rename-Item -Path $NessusCAPath\serverkey.pem -NewName $NessusCAPath\serverkey`_$Date.pem
 Copy-Item -Path $env:TEMP\$CN`.key -Destination $NessusCAPath\serverkey.pem -Force
 
-# Start Tenable service
+# Start the Tenable service
 Start-Service -Name 'Tenable Nessus'
 
 # Cleanup
