@@ -194,3 +194,14 @@ foreach ($i in [System.Enum]::GetNames([System.Security.AccessControl.FileSystem
     Write-Host $i, ([int]([System.Security.AccessControl.FileSystemRights])::$i)
 }
 
+
+# SDDL Code
+# https://poshscripter.wordpress.com/2017/04/27/sddl-conversion-with-powershell/
+$Path = 'C:\Apache24\bin'
+$ACL = Get-Acl -Path $Path
+$SDDL = $ACL.Sddl
+$SDDL
+$ACLObject = New-Object -TypeName System.Security.AccessControl.DirectorySecurity
+$ACLObject.SetSecurityDescriptorSddlForm($SDDL)
+$ACLObject.Access
+Set-Acl -Path $Path -AclObject $ACLObject
