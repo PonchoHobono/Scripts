@@ -154,3 +154,43 @@ Set-Acl -Path $Folder -AclObject $ACL
 
 # Copy permissions from one folder to another
 Get-Acl -Path C:\Test\Target | Set-Acl -Path C:\Test\Target2
+
+
+# https://docs.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.filesystemrights?view=net-5.0
+# FileSystemRights
+[System.Enum]::GetNames([System.Security.AccessControl.FileSystemRights])
+ListDirectory
+ReadData
+WriteData
+CreateFiles
+CreateDirectories
+AppendData
+ReadExtendedAttributes
+WriteExtendedAttributes
+Traverse
+ExecuteFile
+DeleteSubdirectoriesAndFiles
+ReadAttributes
+WriteAttributes
+Write
+Delete
+ReadPermissions
+Read
+ReadAndExecute
+Modify
+ChangePermissions
+TakeOwnership
+Synchronize
+FullControl
+
+# Example of getting individual FileSystemRights values
+[int]([System.Security.AccessControl.FileSystemRights]::Write)
+278
+[int]([System.Security.AccessControl.FileSystemRights]::Read)
+131209
+
+# To get all FileSystemRights values
+foreach ($i in [System.Enum]::GetNames([System.Security.AccessControl.FileSystemRights])) {
+    Write-Host $i, ([int]([System.Security.AccessControl.FileSystemRights])::$i)
+}
+
