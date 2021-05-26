@@ -1,3 +1,6 @@
+# https://blue42.net/windows/changing-ntfs-security-permissions-using-powershell/
+# https://www.vgemba.net/microsoft/NTFS-Permissions-PowerShell/
+
 # Disable folder permission inheritance. Copy permissions.
     # https://docs.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.objectsecurity.setaccessruleprotection?view=dotnet-plat-ext-3.1
     # SetAccessRuleProtection($true,$true)
