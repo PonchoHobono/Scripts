@@ -157,6 +157,13 @@ Get-Acl -Path C:\Test\Target | Set-Acl -Path C:\Test\Target2
 
 
 # https://docs.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.filesystemrights?view=net-5.0
+# https://www.codeproject.com/reference/871338/accesscontrol-filesystemrights-permissions-table
+# Individual FileSystemRights values
+[int]([System.Security.AccessControl.FileSystemRights]::Write)
+278
+[int]([System.Security.AccessControl.FileSystemRights]::Read)
+131209
+
 # FileSystemRights
 [System.Enum]::GetNames([System.Security.AccessControl.FileSystemRights])
 ListDirectory
@@ -183,17 +190,117 @@ TakeOwnership
 Synchronize
 FullControl
 
-# Example of getting individual FileSystemRights values
-[int]([System.Security.AccessControl.FileSystemRights]::Write)
-278
-[int]([System.Security.AccessControl.FileSystemRights]::Read)
-131209
-
-# To get all FileSystemRights values
+# All FileSystemRights Names
 foreach ($i in [System.Enum]::GetNames([System.Security.AccessControl.FileSystemRights])) {
-    Write-Host $i, ([int]([System.Security.AccessControl.FileSystemRights])::$i)
+    $i.ToString()
 }
+ListDirectory
+ReadData
+WriteData
+CreateFiles
+CreateDirectories
+AppendData
+ReadExtendedAttributes
+WriteExtendedAttributes
+Traverse
+ExecuteFile
+DeleteSubdirectoriesAndFiles
+ReadAttributes
+WriteAttributes
+Write
+Delete
+ReadPermissions
+Read
+ReadAndExecute
+Modify
+ChangePermissions
+TakeOwnership
+Synchronize
+FullControl
 
+# All FileSystemRights Vales
+foreach ($i in [System.Enum]::GetNames([System.Security.AccessControl.FileSystemRights])) {
+    ([int]([System.Security.AccessControl.FileSystemRights])::$i)
+}
+1
+1
+2
+2
+4
+4
+8
+16
+32
+32
+64
+128
+256
+278
+65536
+131072
+131209
+131241
+197055
+262144
+524288
+1048576
+2032127
+
+# FileSystemRights Names & Their Values
+foreach ($i in [System.Enum]::GetNames([System.Security.AccessControl.FileSystemRights])) {
+    Write-Host $i.ToString().PadLeft(28),([int]([System.Security.AccessControl.FileSystemRights])::$i)
+}
+               ListDirectory 1
+                    ReadData 1
+                   WriteData 2
+                 CreateFiles 2
+           CreateDirectories 4
+                  AppendData 4
+      ReadExtendedAttributes 8
+     WriteExtendedAttributes 16
+                    Traverse 32
+                 ExecuteFile 32
+DeleteSubdirectoriesAndFiles 64
+              ReadAttributes 128
+             WriteAttributes 256
+                       Write 278
+                      Delete 65536
+             ReadPermissions 131072
+                        Read 131209
+              ReadAndExecute 131241
+                      Modify 197055
+           ChangePermissions 262144
+               TakeOwnership 524288
+                 Synchronize 1048576
+                 FullControl 2032127
+
+# FileSystemRights & Their Binary Value
+foreach ($i in [System.Enum]::GetNames([System.Security.AccessControl.FileSystemRights])) {
+    Write-Host $i.ToString().PadLeft(28),([Convert]::ToString(([int]([System.Security.AccessControl.FileSystemRights])::$i),2).PadLeft(32,'0'))
+}
+               ListDirectory 00000000000000000000000000000001
+                    ReadData 00000000000000000000000000000001
+                   WriteData 00000000000000000000000000000010
+                 CreateFiles 00000000000000000000000000000010
+           CreateDirectories 00000000000000000000000000000100
+                  AppendData 00000000000000000000000000000100
+      ReadExtendedAttributes 00000000000000000000000000001000
+     WriteExtendedAttributes 00000000000000000000000000010000
+                    Traverse 00000000000000000000000000100000
+                 ExecuteFile 00000000000000000000000000100000
+DeleteSubdirectoriesAndFiles 00000000000000000000000001000000
+              ReadAttributes 00000000000000000000000010000000
+             WriteAttributes 00000000000000000000000100000000
+                       Write 00000000000000000000000100010110
+                      Delete 00000000000000010000000000000000
+             ReadPermissions 00000000000000100000000000000000
+                        Read 00000000000000100000000010001001
+              ReadAndExecute 00000000000000100000000010101001
+                      Modify 00000000000000110000000110111111
+           ChangePermissions 00000000000001000000000000000000
+               TakeOwnership 00000000000010000000000000000000
+                 Synchronize 00000000000100000000000000000000
+                 FullControl 00000000000111110000000111111111
 
 # SDDL Code
 # https://poshscripter.wordpress.com/2017/04/27/sddl-conversion-with-powershell/
