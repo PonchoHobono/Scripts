@@ -35,39 +35,39 @@ Set-Acl -Path $Folder -AclObject $ACL
 # Arguements:
     # IdentityReference, FileSystemRights, InheritanceFlags, PropagationFlags, AccessControlType
 # Options for InheritanceFlags & PropagationFlags (e.g. "Applies To"):
-    ############################################################################################
-	# Apply To                          # InheritanceFlags                  # PropagationFlags #
-	############################################################################################
-	# This folder only                  # 'None'                            # 'None'           #
-    # This folder, subfolders and files # 'ContainerInherit, ObjectInherit' # 'None'           #
-    # This folder and subfolders        # 'ContainerInherit'                # 'None'           #
-    # This folder and files             # 'ObjectInherit'                   # 'None'           #
-    # Subfolder and files only         	# 'ContainerInherit, ObjectInherit' # 'InheritOnly'    #
-    # Subfolder only                    # 'ContainerInherit'                # 'InheritOnly'    #
-    # Files only                        # 'ObjectInherit'                   # 'InheritOnly'    #
-	############################################################################################
+############################################################################################
+# Apply To                          # InheritanceFlags                  # PropagationFlags #
+############################################################################################
+# This folder only                  # 'None'                            # 'None'           #
+# This folder, subfolders and files # 'ContainerInherit, ObjectInherit' # 'None'           #
+# This folder and subfolders        # 'ContainerInherit'                # 'None'           #
+# This folder and files             # 'ObjectInherit'                   # 'None'           #
+# Subfolder and files only          # 'ContainerInherit, ObjectInherit' # 'InheritOnly'    #
+# Subfolder only                    # 'ContainerInherit'                # 'InheritOnly'    #
+# Files only                        # 'ObjectInherit'                   # 'InheritOnly'    #
+############################################################################################
 	
-   #	Another flag that can show up for 'PropagationFlags' is 'NoPropagateInherit'. This flag is added by selecting
-   #	"Only apply these permissions to objects and/or containers within this container". This option can be set for
-   #   any right but the "This folder only" option. For example, here are two of them:
-   #   Files only
-   #   Propagation: InheritOnly, NoPropagateInherit
-   #   -Inheritance: ObjectInherit
-   #   -Sub folders and files only
-   #   Propagation: InheritOnly, NoPropagateInherit
-   #   -Inheritance: ObjectInherit, ContainerInherit
+# Another flag that can show up for 'PropagationFlags' is 'NoPropagateInherit'. This flag is added by selecting
+# "Only apply these permissions to objects and/or containers within this container". This option can be set for
+# any right but the "This folder only" option. For example, here are two of them:
+# Files only
+# Propagation: InheritOnly, NoPropagateInherit
+# -Inheritance: ObjectInherit
+# -Sub folders and files only
+# Propagation: InheritOnly, NoPropagateInherit
+# -Inheritance: ObjectInherit, ContainerInherit
 	
-   # If you were to apply an access control entry to C:\Something using that flag the right would apply to C:\Something\Else,
-   # but it would not be carried down to C:\Something\Else\Entirely.
+# If you were to apply an access control entry to C:\Something using that flag the right would apply to C:\Something\Else,
+# but it would not be carried down to C:\Something\Else\Entirely.
 	
-	###########################################################################################
-	# Result	                                          # isProtected	# preserveInheritance #
-	###########################################################################################
-    # Enables inheritance and replaces all permissions    # false       # false               #
-    # Adds inherited permissions to existing permissions  # false       # true                #
-    # Disables inheritance, removes inherited permissions #	true        # false               #
-    # Disables inheritance, copies inherited permissions  # true        # true                #
-	###########################################################################################
+###########################################################################################
+# Result	                                      # isProtected # preserveInheritance #
+###########################################################################################
+# Enables inheritance and replaces all permissions    # false       # false               #
+# Adds inherited permissions to existing permissions  # false       # true                #
+# Disables inheritance, removes inherited permissions #	true        # false               #
+# Disables inheritance, copies inherited permissions  # true        # true                #
+###########################################################################################
 
 # https://serverfault.com/questions/794849/system-security-accesscontrol-propagationflags-powershell-equivalent-gui-use
 # https://bamcisnetworks.wordpress.com/2016/11/13/windows-acls-inheritanceflags-propogationflags
@@ -120,29 +120,30 @@ Set-Acl -Path $Folder -AclObject $ACL
 
 # Scenario 1 - You want to remove all explicit & inherited permissions on a folder then set specific permissions. Do them in this order.
 # Clear current explicit permissions
-    $Folder = "C:\Test"
-    $ACL = Get-Acl -Path $Folder
-    $NonInherited = $ACL.Access | where {$_.IsInherited -eq $false}
-    foreach ($Entry in $NonInherited) {
-        $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($Entry.IdentityReference,$Entry.FileSystemRights,$Entry.InheritanceFlags,$Entry.PropagationFlags,$Entry.AccessControlType)
-        $ACL.RemoveAccessRule($AccessRule) | Out-Null
-        Set-Acl -Path $Folder -AclObject $ACL
-    }
+$Folder = "C:\Test"
+$ACL = Get-Acl -Path $Folder
+$NonInherited = $ACL.Access | where {$_.IsInherited -eq $false}
+foreach ($Entry in $NonInherited) {
+   $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($Entry.IdentityReference,$Entry.FileSystemRights,$Entry.InheritanceFlags,$Entry.PropagationFlags,$Entry.AccessControlType)
+   $ACL.RemoveAccessRule($AccessRule) | Out-Null
+   Set-Acl -Path $Folder -AclObject $ACL
+}
 # Set desired permissions. Repeat this section as needed.
-    $ACL = Get-Acl -Path $Folder
-    $IdentityReference = "LAPTOPLAB\AdminPatrick"
-    $FileSystemRights = "FullControl"
-    $InheritanceFlags = "ContainerInherit, ObjectInherit"
-    $PropagationFlags = "None"
-    $AccessControlType = "Allow"
-    $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($IdentityReference,$FileSystemRights,$InheritanceFlags,$PropagationFlags,$AccessControlType)
-    $ACL.SetAccessRule($AccessRule)
-    Set-Acl -Path $Folder -AclObject $ACL
+$ACL = Get-Acl -Path $Folder
+$IdentityReference = "LAPTOPLAB\AdminPatrick"
+$FileSystemRights = "FullControl"
+$InheritanceFlags = "ContainerInherit, ObjectInherit"
+$PropagationFlags = "None"
+$AccessControlType = "Allow"
+$AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule($IdentityReference,$FileSystemRights,$InheritanceFlags,$PropagationFlags,$AccessControlType)
+$ACL.SetAccessRule($AccessRule)
+Set-Acl -Path $Folder -AclObject $ACL
+
 # Remove Inheritance, do not copy permissions.
-    $Folder = "C:\Test"
-    $ACL = Get-Acl -Path $Folder
-    $ACL.SetAccessRuleProtection($true,$false)
-    Set-Acl -Path $Folder -AclObject $ACL
+$Folder = "C:\Test"
+$ACL = Get-Acl -Path $Folder
+$ACL.SetAccessRuleProtection($true,$false)
+Set-Acl -Path $Folder -AclObject $ACL
 
 
 # Scenario 2 - Same as before but using a file that contains the permissions.
