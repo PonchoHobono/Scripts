@@ -69,6 +69,15 @@ Set-Acl -Path $Folder -AclObject $ACL
 # Disables inheritance, copies inherited permissions  # true        # true                #
 ###########################################################################################
 
+# PropagationFlags
+# https://docs.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.propagationflags?view=net-5.0
+# InheritOnly	2	
+# Specifies that the ACE is propagated only to child objects. This includes both container and leaf child objects.
+# None	0	
+# Specifies that no inheritance flags are set.
+# NoPropagateInherit	1	
+# Specifies that the ACE is not propagated to child objects.
+
 # https://serverfault.com/questions/794849/system-security-accesscontrol-propagationflags-powershell-equivalent-gui-use
 # https://bamcisnetworks.wordpress.com/2016/11/13/windows-acls-inheritanceflags-propogationflags
 
