@@ -29,7 +29,7 @@ $ACL.SetAccessRuleProtection($false,$true)
 Set-Acl -Path $Folder -AclObject $ACL
 
 
-# Assign a user permissions to a folder
+# Add a user's permission to a folder
 # To see a list of all types of permissions run:
     [system.enum]::getnames([System.Security.AccessControl.FileSystemRights])
 # Arguements:
