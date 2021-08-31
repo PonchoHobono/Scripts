@@ -1,4 +1,6 @@
 # Work in progress
+# https://stackoverflow.com/questions/39252620/powershell-split-specify-a-new-line
+# https://www.powershelladmin.com/wiki/Powershell_split_operator
 
 $Content = Import-Excel -Path 'C:\Temp\New Text Document.xlsx'
 #$Content[0].'Plugin Output'
