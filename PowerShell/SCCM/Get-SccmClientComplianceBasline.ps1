@@ -29,16 +29,26 @@ function Get-SccmClientComplianceBasline {
             $Return = @()
             $AllBaselines = Get-WmiObject -Namespace root\ccm\dcm -Class SMS_DesiredConfiguration
             foreach ($Baseline in $AllBaselines) {
+                #if (($Baseline.LastEvalTime.length -eq '0') -or ($Baseline.LastEvalTime -ne '00000000000000.000000+000') -or ($Baseline.LastEvalTime -ne $null)) {
                 if (($Baseline.LastEvalTime.length -ne '0') -and ($Baseline.LastEvalTime -ne '00000000000000.000000+000') -and ($Baseline.LastEvalTime -ne $null)) {
                     $LastEvalTime = $Baseline.ConvertToDateTime($Baseline.LastEvalTime)
                 } else {
                     $LastEvalTime = 'N/A'
                 }
+                switch ($Baseline.LastComplianceStatus) {
+                    0 {$LastComplianceStatus = 'Non-Compliant'}
+                    1 {$LastComplianceStatus = 'Compliant'}
+                    2 {$LastComplianceStatus = 'Submitted'}
+                    3 {$LastComplianceStatus = 'Unknown'}
+                    4 {$LastComplianceStatus = 'Error'}
+                    default {$LastComplianceStatus = 'Invalid'}
+                }
                 $Object = [pscustomobject]@{
                     Name = $Baseline.DisplayName
                     Revision = $Baseline.Version
                     'Last Evaluation' = $LastEvalTime
-                    'Compliance State' = $Baseline.LastComplianceStatus
+                    #'Compliance State' = $Baseline.LastComplianceStatus
+                    'Compliance State' = $LastComplianceStatus
                     'Evaluation State' = $Baseline.Status
                 }
                 $Return += $Object
