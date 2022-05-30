@@ -37,11 +37,12 @@ function Test-ComputersInList {
     }
     process {
         try {
-            if ($ComputerName.Contains($env:COMPUTERNAME)) {
+            # Check to see if the local computername is in the $ComputerName array. This also includes a wildcard check in case the local computername is an FQDN.
+            if (@($ComputerName) -like "$env:COMPUTERNAME*") {
                 Write-Host "Running local then remote"
                 & $ScriptBlock
                 # Remove local computer from array
-                $UpdatedComputerName = $ComputerName | Where-Object { $PSItem –ne $env:COMPUTERNAME }
+                $UpdatedComputerName = $ComputerName | Where-Object {$PSItem -notlike "$env:COMPUTERNAME*"}
                 Invoke-Command -ComputerName $UpdatedComputerName -ScriptBlock $ScriptBlock -ArgumentList $PSBoundParameters
             } else {
                 Write-Host "Running remote only"
@@ -61,9 +62,30 @@ function Test-ComputersInList {
     
 } # End of Test-ComputersInList function
 
+<#
+Test Code
+
 SERVER01
-SERVER02
+SERVER02.corp.ad.publix.com
 SERVER03
 
 $Servers = Get-Clipboard
 Test-ComputersInList -ComputerName $Servers
+
+
+$Servers.Contains($env:COMPUTERNAME)
+
+
+# https://community.idera.com/database-tools/powershell/powertips/b/tips/posts/determine-if-array-contains-value-using-wildcards
+# is the exact phrase present in array?
+$Servers -contains 'SERVER02.domain.com'
+# is ANY phrase present in array that matches the wildcard expression?
+(@($Servers) -like "$env:COMPUTERNAME*").Count -gt 0
+
+# list all phrases from array that match the wildcard expressions
+@($Servers) -like "$env:COMPUTERNAME*"
+
+$ComputerName = Get-Clipboard
+$UpdatedComputerName = $ComputerName | Where-Object {$PSItem -notlike "$env:COMPUTERNAME*"}
+
+#>
