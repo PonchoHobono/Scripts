@@ -66,7 +66,7 @@ function Test-ComputersInList {
 Test Code
 
 SERVER01
-SERVER02.corp.ad.publix.com
+SERVER02.domain.com
 SERVER03
 
 $Servers = Get-Clipboard
