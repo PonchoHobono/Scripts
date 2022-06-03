@@ -41,15 +41,24 @@ function Get-SccmClientComplianceBasline {
                     2 {$LastComplianceStatus = 'Submitted'}
                     3 {$LastComplianceStatus = 'Unknown'}
                     4 {$LastComplianceStatus = 'Error'}
+                    5 {$LastComplianceStatus = 'NotEvaluated'}
                     default {$LastComplianceStatus = 'Invalid'}
+                }
+                switch ($Baseline.Status) {
+                    0 {$BaselineStatus = "Idle"}
+                    1 {$BaselineStatus = "Evaluation Started"}
+                    2 {$BaselineStatus = "Downloading Documents"}
+                    3 {$BaselineStatus = "In Progress"}
+                    4 {$BaselineStatus = "Failure"}
+                    5 {$BaselineStatus = "Reporting"}
+                    default {$BaselineStatus = 'Invalid'}
                 }
                 $Object = [pscustomobject]@{
                     Name = $Baseline.DisplayName
                     Revision = $Baseline.Version
                     'Last Evaluation' = $LastEvalTime
-                    #'Compliance State' = $Baseline.LastComplianceStatus
                     'Compliance State' = $LastComplianceStatus
-                    'Evaluation State' = $Baseline.Status
+                    'Evaluation State' = $BaselineStatus
                 }
                 $Return += $Object
             }
@@ -58,9 +67,17 @@ function Get-SccmClientComplianceBasline {
     }
     process {
         try {
-            if ($ComputerName -eq $env:COMPUTERNAME) {
+            # Check to see if the local computername is in the $ComputerName array. This also in includes a wildcard check in case the local computername is an FQDN.
+            if (@($ComputerName) -like "$env:COMPUTERNAME*") {
+                Write-Host "Running local then remote if any"
                 & $ScriptBlock
+                # Remove local computer from array. If any are left, run remotly.
+                $UpdatedComputerName = $ComputerName | Where-Object {$PSItem -notlike "$env:COMPUTERNAME*"}
+                if ($UpdatedComputerName) {
+                    Invoke-Command -ComputerName $UpdatedComputerName -ScriptBlock $ScriptBlock -ArgumentList $PSBoundParameters
+                }
             } else {
+                Write-Host "Running remote only"
                 Invoke-Command -ComputerName $ComputerName -ScriptBlock $ScriptBlock -ArgumentList $PSBoundParameters
             }
         }
@@ -70,4 +87,4 @@ function Get-SccmClientComplianceBasline {
     }
     end {
     }
-}
+} # End of Get-SccmClientComplianceBasline function
